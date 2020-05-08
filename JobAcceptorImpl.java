@@ -18,13 +18,12 @@ public class JobAcceptorImpl extends UnicastRemoteObject implements JobAcceptor{
     }
 
     public Object executeJob(Job job) throws RemoteException{
-        System.out.println("Calling method: executeJob()");
+        System.out.println("New job arrived, executing");
         Object returnVal = null;
         ExecutorService jobThread = Executors.newSingleThreadExecutor();
         Callable<Object> callable = new Callable<Object>(){
             @Override
             public Object call(){
-                System.out.println("Calling method: call() (Thread)");
                 return job.execute();
             }
         };
@@ -37,6 +36,7 @@ public class JobAcceptorImpl extends UnicastRemoteObject implements JobAcceptor{
         } finally{
             jobThread.shutdown();
         }
+        System.out.println("Finished execution");
         return returnVal;
     }
 

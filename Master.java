@@ -1,63 +1,94 @@
 import java.net.InetAddress;
-import java.rmi.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Master implements WorkerHandler{
 
     private WorkerList workerList;
+    private DistributedJob pendingJob;
+    private Scanner scanner;
 
     public static void main(String[] args) throws Exception{
+        System.setProperty("java.security.policy","file:./security.policy");
+        System.setSecurityManager(new SecurityManager());
         Master m = new Master();
         m.runMain();
     }
 
     public Master(){
+        System.out.println("Initializing Master Program");
         workerList = new WorkerList();
+        scanner = new Scanner(System.in);
+        System.out.println("Written by Sakhawat Hossain Saimon for CS5523 / Fall 2020 / UTSA");
     }
 
     public void runMain() throws Exception {
-        System.setProperty("java.security.policy","file:./security.policy");
-        System.setSecurityManager(new SecurityManager());
-
         /** Sign up code */
-        Thread acceptorThread = new Thread(new WorkerAcceptor(this));
+        WorkerAcceptor workerAcceptor = new WorkerAcceptor(this);
+        Thread acceptorThread = new Thread(workerAcceptor);
         acceptorThread.start();
         String address = Translator.getAddressFromIP(InetAddress.getLocalHost());
         System.out.println("Address: " + address);
+        menu();
+        workerAcceptor.stop();
+        return;
+    }
 
-
+    private void loadJob(){
         try{
             // /** Job Specifications **/
-            int[] tempArr1 = {4, 2, 3, 7};
-            int[] tempArr2 = {1, 8, 6, 5};
-            List<Integer> arr1 = new ArrayList<Integer>();
-            List<Integer> arr2 = new ArrayList<Integer>();
-            for(int i = 0; i < tempArr1.length; i++)
-                arr1.add(tempArr1[i]);
-            for(int i = 0; i < tempArr2.length; i++)
-                arr2.add(tempArr2[i]);
-                
-            // JobAcceptor sorter1 = (JobAcceptor) Naming.lookup("//localhost:1099/Hello");
-            // JobAcceptor sorter2 = (JobAcceptor) Naming.lookup("//localhost:1099/Hello2");
-            Scanner sc = new Scanner(System.in);
-            System.out.println("Temporary roadblock!");
-            sc.nextLine();
-            JobAcceptor sorter1 = workerList.get(0);
-            //JobAcceptor sorter2 = workerList.get(1);
-            Job job1 = new SortingJob(arr1);
-            //Job job2 = new SortingJob(arr2);
-
-            List<Integer> result1 = (List<Integer>) sorter1.executeJob(job1);
-            //List<Integer> result2 = (List<Integer>) sorter2.executeJob(job2);
-
+            DistributedJob distJob = new DistributedJob();
+            if(this.workerList.getWorkerCount() < 1){
+                System.out.println("No workers available, job stored for later execution");
+                pendingJob = distJob;
+                distJob = null;
+                return;
+            }
+            pendingJob = null;
+            Matrix result = (Matrix) this.workerList.deployJob(distJob);
             System.out.println("Result acquired from worker");
-            System.out.println(result1);
-            //System.out.println(result2);
+            Matrix.writeAsCSV(result, "testoutput.txt");
         }catch(Exception e){
             System.out.println("Something wrong with Master");
             e.printStackTrace();
+        }
+    }
+
+    private void loadPendingJob(){
+        DistributedJob distJob = pendingJob;
+        pendingJob = null;
+        try{
+            Matrix result = (Matrix) this.workerList.deployJob(distJob);
+            System.out.println("Result acquired from worker");
+            Matrix.writeAsCSV(result, "testoutput.txt");
+        }catch(Exception e){
+            System.out.println("Something wrong with Master");
+            e.printStackTrace();
+        }
+    }
+
+    private void menu(){
+        String command = "";
+        while(true){
+            System.out.println("\n-------MENU--------");
+            System.out.println("Command list:");
+            System.out.println("exit\t:\tclose program");
+            System.out.println("load\t:\tload new matrix multiplication task");
+            System.out.println("list\t:\tview list of workers");
+            command = scanner.nextLine().toLowerCase();
+            if(command.equals("exit")){
+                System.out.println("Goodbye!");
+                return;
+            }else if(command.equals("load")){
+                if(this.pendingJob != null){
+                    System.out.println("A job is pending already, can not load new");
+                }else{
+                    loadJob();
+                }
+            }else if(command.equals("list")){
+                this.workerList.getWorkerStats();
+            }else{
+                System.out.println("Invalid command");
+            }
         }
     }
 
@@ -65,5 +96,8 @@ public class Master implements WorkerHandler{
     public void onArrive(WorkerRecord workerRecord) {
         System.out.println("New worker " + workerRecord.getName() + " just signed up!");
         workerList.add(workerRecord);
+        if(pendingJob != null){
+            loadPendingJob();
+        }
     }
 }

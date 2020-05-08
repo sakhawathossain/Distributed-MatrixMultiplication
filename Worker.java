@@ -11,6 +11,8 @@ public class Worker {
         System.setProperty("java.security.policy","file:./security.policy");
         System.setSecurityManager(new SecurityManager());
 
+        System.out.println("Initializing Master Program");
+
         /** Sign up code */
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please enter node name");

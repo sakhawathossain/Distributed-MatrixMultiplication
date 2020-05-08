@@ -6,7 +6,7 @@ public class WorkerAcceptor implements Runnable{
     private ServerSocket server;
     private Socket s;
     private ObjectInputStream is;
-
+    private boolean exit = false;
     private WorkerHandler workerHandler;
 
     public WorkerAcceptor(WorkerHandler workerHandler){
@@ -23,7 +23,7 @@ public class WorkerAcceptor implements Runnable{
             // Server will be started on 1700 port number
             server=new ServerSocket(1700);
             // Server listening for connection            
-            while(true){
+            while(!exit){
                 s=server.accept();
                 is = new ObjectInputStream(s.getInputStream());
                 WorkerRecord workerRecord = (WorkerRecord) is.readObject();
@@ -35,6 +35,10 @@ public class WorkerAcceptor implements Runnable{
             e.printStackTrace();
             
         }
+    }
+
+    public void stop(){
+        this.exit = true;
     }
 
 

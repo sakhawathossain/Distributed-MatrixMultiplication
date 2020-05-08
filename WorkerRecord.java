@@ -3,16 +3,15 @@ import java.io.Serializable;
 public class WorkerRecord implements Serializable {
     private String name;
     private String address;
-    private boolean isEngaged;
-    private boolean isUnreachable;
+    private Status status;
+    
 
     private static final long serialVersionUID = 1L;
 
     public WorkerRecord(String name, String address){
         this.name = name;
         this.address = address;
-        this.isEngaged = false;
-        this.isUnreachable = false;
+        this.status = Status.IDLE;
     }
 
     public String getName(){
@@ -23,23 +22,30 @@ public class WorkerRecord implements Serializable {
         return address;
     }
 
-    public boolean getIsEngaged(){
-        return isEngaged;
+    public Status getStatus(){
+        return this.status;
     }
 
-    public void setIsEngaged(boolean engaged){
-        this.isEngaged = engaged;
+    public void setName(String name){
+        this.name = name;
     }
 
-    public boolean getIsUnreachable(){
-        return isUnreachable;
+    public void setAddress(String address){
+        this.address = address;
     }
 
-    public void setIsUnreachable(boolean isUnreachable){
-        this.isUnreachable = isUnreachable;
+    public void setStatus(Status status){
+        this.status = status;
     }
     
     public String toString(){
         return "Name: " + name + "\n" + "Address: " + address;
     }
+}
+
+enum Status{
+    IDLE,
+    ENGAGED,
+    UNREACHABLE,
+    COMPLETED
 }
