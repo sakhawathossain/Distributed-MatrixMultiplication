@@ -4,9 +4,9 @@ import java.rmi.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
-public class Worker {
+public class Worker2 {
 
-    private static final String serverAddress = "//localhost:1099/Hello";
+    private static final String serverAddress = "//localhost:1099/Hello2";
     private static JobAcceptor jobAcceptor;
 
     public static void main(String[] args) throws Exception {
