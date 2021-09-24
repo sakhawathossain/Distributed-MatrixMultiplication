@@ -5,7 +5,10 @@
 ### Prerequisite: RMI registry
 
 Run RMI registry from terminal:
+
+```
 rmiregistry &
+```
 
 ### Executing Worker program from terminal:
 
