@@ -7,22 +7,24 @@
 Run RMI registry from terminal:
 rmiregistry &
 
-
 ### Executing Worker program from terminal:
 
+```
 java Worker
 nodename      # name of this node
-ip_master     # ip address of Master	     
+ip_master     # ip address of Master
+```
 
 ### Running Master:
 
+```
 java Master
               # Run Workers now
               # Wait for Workers to be ready
 m1.txt        # first matrix CSV file
 m2.txt        # second matrix CSV file
-
+```
 
 ###  Notes:
 
--Use different terminal/command windows for each Master/Worker node
+Use different terminal/command windows for each Master/Worker node
